@@ -13,19 +13,19 @@ data.alt <- na.omit(data.na.alt)
 data_aalborg <- subset(data.alt, Kommune == "Aalborg")
 data_aarhus <- subset(data.alt, Kommune == "Aarhus")
 data_odense <- subset(data.alt, Kommune == "Odense")
-data_kobenhavn <- subset(data.alt, Kommune == "Kobenhavn")
+data_koebenhavn <- subset(data.alt, Kommune == "koebenhavn")
 data_aalborg.udenlog <- subset(data.uden.log, Kommune == "Aalborg")
 data_aarhus.udenlog <- subset(data.uden.log, Kommune == "Aarhus")
 data_odense.udenlog <- subset(data.uden.log, Kommune == "Odense")
-data_kobenhavn.udenlog <- subset(data.uden.log, Kommune == "Kobenhavn")
+data_koebenhavn.udenlog <- subset(data.uden.log, Kommune == "koebenhavn")
 
 #Laver dataframes hvor kun to af kommunerne indgaar
 data_aalborg_aarhus <- subset(data.alt, Kommune == "Aalborg" | Kommune == "Aarhus")
 data_aalborg_odense <- subset(data.alt, Kommune == "Aalborg" | Kommune == "Odense")
-data_aalborg_kobenhavn <- subset(data.alt, Kommune == "Aalborg" | Kommune == "Kobenhavn")
+data_aalborg_koebenhavn <- subset(data.alt, Kommune == "Aalborg" | Kommune == "koebenhavn")
 data_aarhus_odense <- subset(data.alt, Kommune == "Aarhus" | Kommune == "Odense")
-data_aarhus_kobenhavn <- subset(data.alt, Kommune == "Aarhus" | Kommune == "Kobenhavn")
-data_odense_kobenhavn <- subset(data.alt, Kommune == "Odense" | Kommune == "Kobenhavn")
+data_aarhus_koebenhavn <- subset(data.alt, Kommune == "Aarhus" | Kommune == "koebenhavn")
+data_odense_koebenhavn <- subset(data.alt, Kommune == "Odense" | Kommune == "koebenhavn")
 
 #UDREGNER KORRELATION MELLEM DE FORSKELLIGE VARIABLE OG TESTER FOR MULTIKOLINEARITET
 #Korrelationsmatrix
@@ -147,18 +147,18 @@ reduceret_model_aarhus <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund + Antal_Ru
 summary(reduceret_model_aarhus)
 reduceret_model_odense <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund + Antal_Rum + Sogn + Trend + Afstand_Skole + Afstand_Raadhus + Hus_Alder, data=data_odense)
 summary(reduceret_model_odense)
-reduceret_model_kobenhavn <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund + Antal_Rum + Sogn + Trend + Afstand_Skole + Afstand_Raadhus + Hus_Alder, data=data_kobenhavn)
-summary(reduceret_model_kobenhavn)
+reduceret_model_koebenhavn <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund + Antal_Rum + Sogn + Trend + Afstand_Skole + Afstand_Raadhus + Hus_Alder, data=data_koebenhavn)
+summary(reduceret_model_koebenhavn)
 
 #Beregner gennemsnit og standardafvigelser for residualerne til modellerne for hver kommune
 mean(reduceret_model_aalborg$residuals)
 mean(reduceret_model_aarhus$residuals)
 mean(reduceret_model_odense$residuals)
-mean(reduceret_model_kobenhavn$residuals)
+mean(reduceret_model_koebenhavn$residuals)
 sd(reduceret_model_aalborg$residuals)
 sd(reduceret_model_aarhus$residuals)
 sd(reduceret_model_odense$residuals)
-sd(reduceret_model_kobenhavn$residuals)
+sd(reduceret_model_koebenhavn$residuals)
 
 #Beregner den gennemsnitlige boligkvadratmeterpris og standardafvigelse for hver kommune pr. aar
 kvmprisaalborg <- data.frame(kvmpris = data_aalborg.udenlog$Pris_Salg/data_aalborg.udenlog$Areal_Bolig, Salgsaar = data_aalborg.udenlog$Salgsaar) %>%
@@ -185,16 +185,16 @@ kvmprisodense <- data.frame(kvmpris = data_odense.udenlog$Pris_Salg/data_odense.
   as.data.frame()
 kvmprisodense
 
-kvmpriskobenhavn <- data.frame(kvmpris = data_kobenhavn.udenlog$Pris_Salg/data_kobenhavn.udenlog$Areal_Bolig, Salgsaar = data_kobenhavn.udenlog$Salgsaar) %>%
+kvmpriskoebenhavn <- data.frame(kvmpris = data_koebenhavn.udenlog$Pris_Salg/data_koebenhavn.udenlog$Areal_Bolig, Salgsaar = data_koebenhavn.udenlog$Salgsaar) %>%
   group_by(Salgsaar) %>%
   summarise_at(vars(kvmpris),
                list(mean = mean,
                     sd = sd)) %>%
   as.data.frame()
-kvmpriskobenhavn
+kvmpriskoebenhavn
 
 #Laver en datafrane med de gennemsnitlige boligkvadratmeterpriser og standardafvigelser og plotter det
-kvmpris <- data.frame(Salgsaar = kvmprisaalborg$Salgsaar, kvmprisall = kvmprisaalborg$mean, kvmprisaar = kvmprisaarhus$mean, kvmprisod = kvmprisodense$mean, kvmpriskbh = kvmpriskobenhavn$mean)
+kvmpris <- data.frame(Salgsaar = kvmprisaalborg$Salgsaar, kvmprisall = kvmprisaalborg$mean, kvmprisaar = kvmprisaarhus$mean, kvmprisod = kvmprisodense$mean, kvmpriskbh = kvmpriskoebenhavn$mean)
 
 #Test om udviklingen kvadratmeterprisen er signifikant forskellig i de fire kommuner
 reduceret_model_kvmpris <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Trend + Velhavende + Afstand_Raadhus + Hus_Alder, data = data.alt)
@@ -214,25 +214,25 @@ model_aalborg_odense_uden_KommuneTrend <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Gr
 p_aalborg_odense_KommuneTrend <- anova(model_aalborg_odense_kvmpris, model_aalborg_odense_uden_KommuneTrend)
 print(p_aalborg_odense_KommuneTrend) #p<0.05 og den kan dermed ikke fjernes
 
-model_aalborg_kobenhavn_kvmpris <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Trend + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_kobenhavn)
-model_aalborg_kobenhavn_uden_KommuneTrend <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_kobenhavn)
-p_aalborg_kobenhavn_KommuneTrend <- anova(model_aalborg_kobenhavn_kvmpris, model_aalborg_kobenhavn_uden_KommuneTrend)
-print(p_aalborg_kobenhavn_KommuneTrend) #p<0.05 og den kan dermed ikke fjernes
+model_aalborg_koebenhavn_kvmpris <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Trend + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_koebenhavn)
+model_aalborg_koebenhavn_uden_KommuneTrend <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_koebenhavn)
+p_aalborg_koebenhavn_KommuneTrend <- anova(model_aalborg_koebenhavn_kvmpris, model_aalborg_koebenhavn_uden_KommuneTrend)
+print(p_aalborg_koebenhavn_KommuneTrend) #p<0.05 og den kan dermed ikke fjernes
 
 model_aarhus_odense_kvmpris <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Trend + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_odense)
 model_aarhus_odense_uden_KommuneTrend <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_odense)
 p_aarhus_odense_KommuneTrend <- anova(model_aarhus_odense_kvmpris, model_aarhus_odense_uden_KommuneTrend)
 print(p_aarhus_odense_KommuneTrend) #p<0.05 og den kan dermed ikke fjernes
 
-model_aarhus_kobenhavn_kvmpris <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Trend + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_kobenhavn)
-model_aarhus_kobenhavn_uden_KommuneTrend <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_kobenhavn)
-p_aarhus_kobenhavn_KommuneTrend <- anova(model_aarhus_kobenhavn_kvmpris, model_aarhus_kobenhavn_uden_KommuneTrend)
-print(p_aarhus_kobenhavn_KommuneTrend) #p<0.05 og den kan dermed ikke fjernes
+model_aarhus_koebenhavn_kvmpris <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Trend + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_koebenhavn)
+model_aarhus_koebenhavn_uden_KommuneTrend <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_koebenhavn)
+p_aarhus_koebenhavn_KommuneTrend <- anova(model_aarhus_koebenhavn_kvmpris, model_aarhus_koebenhavn_uden_KommuneTrend)
+print(p_aarhus_koebenhavn_KommuneTrend) #p<0.05 og den kan dermed ikke fjernes
 
-model_odense_kobenhavn_kvmpris <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Trend + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_kobenhavn)
-model_odense_kobenhavn_uden_KommuneTrend <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_kobenhavn)
-p_odense_kobenhavn_KommuneTrend <- anova(model_odense_kobenhavn_kvmpris, model_odense_kobenhavn_uden_KommuneTrend)
-print(p_odense_kobenhavn_KommuneTrend) #p>0.05 og den kan dermed fjernes
+model_odense_koebenhavn_kvmpris <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Trend + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_koebenhavn)
+model_odense_koebenhavn_uden_KommuneTrend <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_koebenhavn)
+p_odense_koebenhavn_KommuneTrend <- anova(model_odense_koebenhavn_kvmpris, model_odense_koebenhavn_uden_KommuneTrend)
+print(p_odense_koebenhavn_KommuneTrend) #p>0.05 og den kan dermed fjernes
 
 #UNDERSOGER BETYDNINGEN AF CORONA
 #Test om Corona har en signifikant indvirkning paa husprisen. 
@@ -275,25 +275,25 @@ model_aalborg_odense_uden_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Gr
 p_aalborg_odense_KommuneSkole <- anova(model_aalborg_odense_KommuneSkole, model_aalborg_odense_uden_KommuneSkole)
 print(p_aalborg_odense_KommuneSkole) #p>0.05 og den kan dermed fjernes
 
-model_aalborg_kobenhavn_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_kobenhavn)
-model_aalborg_kobenhavn_uden_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_kobenhavn)
-p_aalborg_kobenhavn_KommuneSkole <- anova(model_aalborg_kobenhavn_KommuneSkole, model_aalborg_kobenhavn_uden_KommuneSkole)
-print(p_aalborg_kobenhavn_KommuneSkole) #p<0.05 og den kan dermed ikke fjernes
+model_aalborg_koebenhavn_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_koebenhavn)
+model_aalborg_koebenhavn_uden_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_koebenhavn)
+p_aalborg_koebenhavn_KommuneSkole <- anova(model_aalborg_koebenhavn_KommuneSkole, model_aalborg_koebenhavn_uden_KommuneSkole)
+print(p_aalborg_koebenhavn_KommuneSkole) #p<0.05 og den kan dermed ikke fjernes
 
 model_aarhus_odense_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_odense)
 model_aarhus_odense_uden_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_odense)
 p_aarhus_odense_KommuneSkole <- anova(model_aarhus_odense_KommuneSkole, model_aarhus_odense_uden_KommuneSkole)
 print(p_aarhus_odense_KommuneSkole) #p<0.05 og den kan dermed ikke fjernes
 
-model_aarhus_kobenhavn_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_kobenhavn)
-model_aarhus_kobenhavn_uden_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_kobenhavn)
-p_aarhus_kobenhavn_KommuneSkole <- anova(model_aarhus_kobenhavn_KommuneSkole, model_aarhus_kobenhavn_uden_KommuneSkole)
-print(p_aarhus_kobenhavn_KommuneSkole) #p<0.05 og den kan dermed ikke fjernes
+model_aarhus_koebenhavn_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_koebenhavn)
+model_aarhus_koebenhavn_uden_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_koebenhavn)
+p_aarhus_koebenhavn_KommuneSkole <- anova(model_aarhus_koebenhavn_KommuneSkole, model_aarhus_koebenhavn_uden_KommuneSkole)
+print(p_aarhus_koebenhavn_KommuneSkole) #p<0.05 og den kan dermed ikke fjernes
 
-model_odense_kobenhavn_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_kobenhavn)
-model_odense_kobenhavn_uden_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_kobenhavn)
-p_odense_kobenhavn_KommuneSkole <- anova(model_odense_kobenhavn_KommuneSkole, model_odense_kobenhavn_uden_KommuneSkole)
-print(p_odense_kobenhavn_KommuneSkole) #p<0.05 og den kan dermed ikke fjernes
+model_odense_koebenhavn_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_koebenhavn)
+model_odense_koebenhavn_uden_KommuneSkole <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_koebenhavn)
+p_odense_koebenhavn_KommuneSkole <- anova(model_odense_koebenhavn_KommuneSkole, model_odense_koebenhavn_uden_KommuneSkole)
+print(p_odense_koebenhavn_KommuneSkole) #p<0.05 og den kan dermed ikke fjernes
 
 #Tjekker ift. velhavende og afstand til skole i alle kommunerne
 model_VelhavendeSkole <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund + Trend + Kommune + Stor_Grund + Afstand_Skole + Kommune*Afstand_Skole + Velhavende*Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data.alt)
@@ -319,11 +319,11 @@ model_odense_uden_VelhavendeSkole <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund
 p_odense_VelhavendeSkole <- anova(model_odense_VelhavendeSkole, model_odense_uden_VelhavendeSkole)
 print(p_odense_VelhavendeSkole) #p<0.05 og den kan dermed ikke fjernes
 
-model_kobenhavn_VelhavendeSkole <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund + Trend + Stor_Grund + Afstand_Skole + Velhavende*Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_kobenhavn)
-summary(model_kobenhavn_VelhavendeSkole)
-model_kobenhavn_uden_VelhavendeSkole <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund + Trend + Stor_Grund + Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_kobenhavn)
-p_kobenhavn_VelhavendeSkole <- anova(model_kobenhavn_VelhavendeSkole, model_kobenhavn_uden_VelhavendeSkole)
-print(p_kobenhavn_VelhavendeSkole) #p>0.05 og den kan dermed fjernes
+model_koebenhavn_VelhavendeSkole <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund + Trend + Stor_Grund + Afstand_Skole + Velhavende*Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_koebenhavn)
+summary(model_koebenhavn_VelhavendeSkole)
+model_koebenhavn_uden_VelhavendeSkole <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund + Trend + Stor_Grund + Afstand_Skole + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_koebenhavn)
+p_koebenhavn_VelhavendeSkole <- anova(model_koebenhavn_VelhavendeSkole, model_koebenhavn_uden_VelhavendeSkole)
+print(p_koebenhavn_VelhavendeSkole) #p>0.05 og den kan dermed fjernes
 
 #Beregner den gennemsnitlige huspris og standardafvigelse for afstand til skole i de fire kommuner
 afstand_skole0.50_aalborg.na <- data.frame(Pris_Salg = data_aalborg.udenlog$Pris_Salg, Afstand_Skole = data_aalborg.udenlog$Afstand_Skole)
@@ -383,24 +383,24 @@ afstand_skole2.00_odense.na["Afstand_Skole"][afstand_skole2.00_odense.na["Afstan
 afstand_skole2.00_odense.na["Afstand_Skole"][afstand_skole2.00_odense.na["Afstand_Skole"] > "2.00"] <- NA
 afstand_skole2.00_odense <- na.omit(afstand_skole2.00_odense.na)
 
-afstand_skole0.50_kobenhavn.na <- data.frame(Pris_Salg = data_kobenhavn.udenlog$Pris_Salg, Afstand_Skole = data_kobenhavn.udenlog$Afstand_Skole)
-afstand_skole0.50_kobenhavn.na["Afstand_Skole"][afstand_skole0.50_kobenhavn.na["Afstand_Skole"] > "0.50"] <- NA
-afstand_skole0.50_kobenhavn <- na.omit(afstand_skole0.50_kobenhavn.na)
+afstand_skole0.50_koebenhavn.na <- data.frame(Pris_Salg = data_koebenhavn.udenlog$Pris_Salg, Afstand_Skole = data_koebenhavn.udenlog$Afstand_Skole)
+afstand_skole0.50_koebenhavn.na["Afstand_Skole"][afstand_skole0.50_koebenhavn.na["Afstand_Skole"] > "0.50"] <- NA
+afstand_skole0.50_koebenhavn <- na.omit(afstand_skole0.50_koebenhavn.na)
 
-afstand_skole1.00_kobenhavn.na <- data.frame(Pris_Salg = data_kobenhavn.udenlog$Pris_Salg, Afstand_Skole = data_kobenhavn.udenlog$Afstand_Skole)
-afstand_skole1.00_kobenhavn.na["Afstand_Skole"][afstand_skole1.00_kobenhavn.na["Afstand_Skole"] < "0.50"] <- NA
-afstand_skole1.00_kobenhavn.na["Afstand_Skole"][afstand_skole1.00_kobenhavn.na["Afstand_Skole"] > "1.00"] <- NA
-afstand_skole1.00_kobenhavn <- na.omit(afstand_skole1.00_kobenhavn.na)
+afstand_skole1.00_koebenhavn.na <- data.frame(Pris_Salg = data_koebenhavn.udenlog$Pris_Salg, Afstand_Skole = data_koebenhavn.udenlog$Afstand_Skole)
+afstand_skole1.00_koebenhavn.na["Afstand_Skole"][afstand_skole1.00_koebenhavn.na["Afstand_Skole"] < "0.50"] <- NA
+afstand_skole1.00_koebenhavn.na["Afstand_Skole"][afstand_skole1.00_koebenhavn.na["Afstand_Skole"] > "1.00"] <- NA
+afstand_skole1.00_koebenhavn <- na.omit(afstand_skole1.00_koebenhavn.na)
 
-afstand_skole1.50_kobenhavn.na <- data.frame(Pris_Salg = data_kobenhavn.udenlog$Pris_Salg, Afstand_Skole = data_kobenhavn.udenlog$Afstand_Skole)
-afstand_skole1.50_kobenhavn.na["Afstand_Skole"][afstand_skole1.50_kobenhavn.na["Afstand_Skole"] < "1.00"] <- NA
-afstand_skole1.50_kobenhavn.na["Afstand_Skole"][afstand_skole1.50_kobenhavn.na["Afstand_Skole"] > "1.50"] <- NA
-afstand_skole1.50_kobenhavn <- na.omit(afstand_skole1.50_kobenhavn.na)
+afstand_skole1.50_koebenhavn.na <- data.frame(Pris_Salg = data_koebenhavn.udenlog$Pris_Salg, Afstand_Skole = data_koebenhavn.udenlog$Afstand_Skole)
+afstand_skole1.50_koebenhavn.na["Afstand_Skole"][afstand_skole1.50_koebenhavn.na["Afstand_Skole"] < "1.00"] <- NA
+afstand_skole1.50_koebenhavn.na["Afstand_Skole"][afstand_skole1.50_koebenhavn.na["Afstand_Skole"] > "1.50"] <- NA
+afstand_skole1.50_koebenhavn <- na.omit(afstand_skole1.50_koebenhavn.na)
 
-afstand_skole2.00_kobenhavn.na <- data.frame(Pris_Salg = data_kobenhavn.udenlog$Pris_Salg, Afstand_Skole = data_kobenhavn.udenlog$Afstand_Skole)
-afstand_skole2.00_kobenhavn.na["Afstand_Skole"][afstand_skole2.00_kobenhavn.na["Afstand_Skole"] < "1.50"] <- NA
-afstand_skole2.00_kobenhavn.na["Afstand_Skole"][afstand_skole2.00_kobenhavn.na["Afstand_Skole"] > "2.00"] <- NA
-afstand_skole2.00_kobenhavn <- na.omit(afstand_skole2.00_kobenhavn.na)
+afstand_skole2.00_koebenhavn.na <- data.frame(Pris_Salg = data_koebenhavn.udenlog$Pris_Salg, Afstand_Skole = data_koebenhavn.udenlog$Afstand_Skole)
+afstand_skole2.00_koebenhavn.na["Afstand_Skole"][afstand_skole2.00_koebenhavn.na["Afstand_Skole"] < "1.50"] <- NA
+afstand_skole2.00_koebenhavn.na["Afstand_Skole"][afstand_skole2.00_koebenhavn.na["Afstand_Skole"] > "2.00"] <- NA
+afstand_skole2.00_koebenhavn <- na.omit(afstand_skole2.00_koebenhavn.na)
 
 aalborg0.50 <- mean(afstand_skole0.50_aalborg$Pris_Salg)
 aalborg1.00 <- mean(afstand_skole1.00_aalborg$Pris_Salg)
@@ -417,13 +417,13 @@ odense1.00 <- mean(afstand_skole1.00_odense$Pris_Salg)
 odense1.50 <- mean(afstand_skole1.50_odense$Pris_Salg)
 odense2.00 <- mean(afstand_skole2.00_odense$Pris_Salg)
 
-kobenhavn0.50 <- mean(afstand_skole0.50_kobenhavn$Pris_Salg)
-kobenhavn1.00 <- mean(afstand_skole1.00_kobenhavn$Pris_Salg)
-kobenhavn1.50 <- mean(afstand_skole1.50_kobenhavn$Pris_Salg)
-kobenhavn2.00 <- mean(afstand_skole2.00_kobenhavn$Pris_Salg)
+koebenhavn0.50 <- mean(afstand_skole0.50_koebenhavn$Pris_Salg)
+koebenhavn1.00 <- mean(afstand_skole1.00_koebenhavn$Pris_Salg)
+koebenhavn1.50 <- mean(afstand_skole1.50_koebenhavn$Pris_Salg)
+koebenhavn2.00 <- mean(afstand_skole2.00_koebenhavn$Pris_Salg)
 
 #Laver en dataframe med de gennemsnitlige huspriser alt efter hvor langt huset ligger fra en skole
-afstand_skoledf <- data.frame(x = c("0.00-0.50", "0.50-1.00", "1.00-1.50", "1.50-2.00"), Aalborg = c(aalborg0.50, aalborg1.00, aalborg1.50, aalborg2.00), Aarhus = c(aarhus0.50, aarhus1.00, aarhus1.50, aarhus2.00), Odense = c(odense0.50, odense1.00, odense1.50, odense2.00), Kobenhavn = c(kobenhavn0.50, kobenhavn1.00, kobenhavn1.50, kobenhavn2.00))
+afstand_skoledf <- data.frame(x = c("0.00-0.50", "0.50-1.00", "1.00-1.50", "1.50-2.00"), Aalborg = c(aalborg0.50, aalborg1.00, aalborg1.50, aalborg2.00), Aarhus = c(aarhus0.50, aarhus1.00, aarhus1.50, aarhus2.00), Odense = c(odense0.50, odense1.00, odense1.50, odense2.00), koebenhavn = c(koebenhavn0.50, koebenhavn1.00, koebenhavn1.50, koebenhavn2.00))
 
 
 #UNDERSOGER BETYDNINGEN AF ANTAL RUM KOMMUNERNE IMELLEM
@@ -445,25 +445,25 @@ model_aalborg_odense_uden_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grun
 p_aalborg_odense_KommuneRum <- anova(red_model_aalborg_odense_KommuneRum, model_aalborg_odense_uden_KommuneRum)
 print(p_aalborg_odense_KommuneRum) #p<0.05 og den kan dermed ikke fjernes
 
-red_model_aalborg_kobenhavn_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Antal_Rum + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_kobenhavn)
-model_aalborg_kobenhavn_uden_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_kobenhavn)
-p_aalborg_kobenhavn_KommuneRum <- anova(red_model_aalborg_kobenhavn_KommuneRum, model_aalborg_kobenhavn_uden_KommuneRum)
-print(p_aalborg_kobenhavn_KommuneRum) #p<0.05 og den kan dermed ikke fjernes
+red_model_aalborg_koebenhavn_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Antal_Rum + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_koebenhavn)
+model_aalborg_koebenhavn_uden_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aalborg_koebenhavn)
+p_aalborg_koebenhavn_KommuneRum <- anova(red_model_aalborg_koebenhavn_KommuneRum, model_aalborg_koebenhavn_uden_KommuneRum)
+print(p_aalborg_koebenhavn_KommuneRum) #p<0.05 og den kan dermed ikke fjernes
 
 red_model_aarhus_odense_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Antal_Rum + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_odense)
 model_aarhus_odense_uden_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_odense)
 p_aarhus_odense_KommuneRum <- anova(red_model_aarhus_odense_KommuneRum, model_aarhus_odense_uden_KommuneRum)
 print(p_aarhus_odense_KommuneRum) #p<0.05 og den kan dermed ikke fjernes
 
-red_model_aarhus_kobenhavn_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Antal_Rum + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_kobenhavn)
-model_aarhus_kobenhavn_uden_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_kobenhavn)
-p_aarhus_kobenhavn_KommuneRum <- anova(red_model_aarhus_kobenhavn_KommuneRum, model_aarhus_kobenhavn_uden_KommuneRum)
-print(p_aarhus_kobenhavn_KommuneRum) #p<0.05 og den kan dermed ikke fjernes
+red_model_aarhus_koebenhavn_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Antal_Rum + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_koebenhavn)
+model_aarhus_koebenhavn_uden_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_aarhus_koebenhavn)
+p_aarhus_koebenhavn_KommuneRum <- anova(red_model_aarhus_koebenhavn_KommuneRum, model_aarhus_koebenhavn_uden_KommuneRum)
+print(p_aarhus_koebenhavn_KommuneRum) #p<0.05 og den kan dermed ikke fjernes
 
-red_model_odense_kobenhavn_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Antal_Rum + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_kobenhavn)
-model_odense_kobenhavn_uden_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_kobenhavn)
-p_odense_kobenhavn_KommuneRum <- anova(red_model_odense_kobenhavn_KommuneRum, model_odense_kobenhavn_uden_KommuneRum)
-print(p_odense_kobenhavn_KommuneRum) #p<0.05 og den kan dermed ikke fjernes
+red_model_odense_koebenhavn_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Kommune + Stor_Grund + Kommune*Antal_Rum + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_koebenhavn)
+model_odense_koebenhavn_uden_KommuneRum <- lm(lPris_Salg-lAreal_Bolig ~ lAreal_Grund + Trend + Stor_Grund + Kommune + Velhavende + Afstand_Raadhus + Hus_Alder, data = data_odense_koebenhavn)
+p_odense_koebenhavn_KommuneRum <- anova(red_model_odense_koebenhavn_KommuneRum, model_odense_koebenhavn_uden_KommuneRum)
+print(p_odense_koebenhavn_KommuneRum) #p<0.05 og den kan dermed ikke fjernes
 
 #Tjekker ift. velhavende og antal rum i alle kommunerne
 red_model_VelhavendeRum <- lm(lPris_Salg ~ lAreal_Bolig + lAreal_Grund + Trend + Kommune + Stor_Grund + Afstand_Skole + Kommune*Antal_Rum + Velhavende*Antal_Rum + Velhavende 
@@ -494,12 +494,12 @@ pris_antalrum_odense <- data.frame(Pris_Salg = data_odense.udenlog$Pris_Salg, An
   as.data.frame()
 pris_antalrum_odense
 
-pris_antalrum_kobenhavn <- data.frame(Pris_Salg = data_kobenhavn.udenlog$Pris_Salg, Antal_Rum = data_kobenhavn.udenlog$Antal_Rum) %>%
+pris_antalrum_koebenhavn <- data.frame(Pris_Salg = data_koebenhavn.udenlog$Pris_Salg, Antal_Rum = data_koebenhavn.udenlog$Antal_Rum) %>%
   group_by(Antal_Rum) %>%
   summarise_at(vars(Pris_Salg),
                list(mean = mean)) %>%
   as.data.frame()
-pris_antalrum_kobenhavn
+pris_antalrum_koebenhavn
 
 #Laver en dataframe med antal rum og den tilhorende gennemsnitlige pris for de fire kommuner
 antalrum_aalborg <- data.frame(Antal_Rum = c(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17), gnspris = c(2400000, 2154069, 2304939, 2923818, 3334984, 4158625, 4036250, NA, NA, NA, NA, NA,NA,NA,NA, NA))
@@ -507,10 +507,10 @@ antalrum_aarhus <- data.frame(Antal_Rum = c(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
                                                                                                   NA,NA,NA,NA))
 antalrum_odense <- data.frame(Antal_Rum = c(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17), gnspris = c(3450000, 2789444, 2188113, 3830079, 4151015, 4442014, 4927500, 6486429, 7522500, 6950000, 3295000, NA,NA,
                                                                                                   NA,NA, NA))
-antalrum_kobenhavn <- data.frame(Antal_Rum = c(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17), gnspris = c(2681250, 2627143, 2970526, 5819524, 6649030, 8562273, 15738889, 7516667, 16200000, 27500000, 12500000, 
+antalrum_koebenhavn <- data.frame(Antal_Rum = c(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17), gnspris = c(2681250, 2627143, 2970526, 5819524, 6649030, 8562273, 15738889, 7516667, 16200000, 27500000, 12500000, 
                                                                                                      30500000,NA,NA,NA, 21000000))
 df.antal_rum <- data.frame(Antal_Rum = antalrum_aalborg$Antal_Rum, gnsprisaalborg = antalrum_aalborg$gnspris, gnsprisaarhus = antalrum_aarhus$gnspris, gnsprisodense = antalrum_odense$gnspris, 
-                           gnspriskobenhavn = antalrum_kobenhavn$gnspris)
+                           gnspriskoebenhavn = antalrum_koebenhavn$gnspris)
 
 #FORSOGER AT OPTIMERE MODELLEN VED AT GANGE SOGN PAA ALLE VARIABLE OG REDUCERE MODELLEN
 #Laver modellen, hvor der er ganget Sogn paa alt
@@ -656,7 +656,7 @@ ggplot(data.uden.log, aes(x=Kommune, y=Pris_Salg, fill=Kommune)) +
   xlab("Kommune") +
   ylab("Huspris") +
   theme(legend.position="none") +
-  scale_x_discrete(limits=c("Aalborg", "Odense", "Aarhus","Kobenhavn")) +
+  scale_x_discrete(limits=c("Aalborg", "Odense", "Aarhus","koebenhavn")) +
   scale_fill_manual(values=c("#DCE319FF", "#453781FF","#238A8DFF", "#39568CFF"))
 
 #plot over afvigelsen mellem data og praediktionerne for den reducerede model
@@ -679,8 +679,8 @@ ggplot(reduceret_model_aarhus, aes(x=reduceret_model_aarhus$residuals)) + geom_h
 + xlab("Residualer for Aarhusmodellen") + ylab("Frekvens") + scale_y_continuous(labels = scales::percent) 
 ggplot(reduceret_model_odense, aes(x=reduceret_model_odense$residuals)) + geom_histogram(aes(y = after_stat(count / sum(count))), color="black", fill="white", bins=25) + xlim(-1,1) 
 + xlab("Residualer for Odensemodellen") + ylab("Frekvens") + scale_y_continuous(labels = scales::percent) 
-ggplot(reduceret_model_kobenhavn, aes(x=reduceret_model_kobenhavn$residuals)) + geom_histogram(aes(y = after_stat(count / sum(count))), color="black", fill="white", bins=25) + xlim(-1,1) 
-+ xlab("Residualer for Kobenhavnmodellen") + ylab("Frekvens") + scale_y_continuous(labels = scales::percent) 
+ggplot(reduceret_model_koebenhavn, aes(x=reduceret_model_koebenhavn$residuals)) + geom_histogram(aes(y = after_stat(count / sum(count))), color="black", fill="white", bins=25) + xlim(-1,1) 
++ xlab("Residualer for koebenhavnmodellen") + ylab("Frekvens") + scale_y_continuous(labels = scales::percent) 
 
 ggplot() + stat_function(fun = dnorm, aes(), color = "blue", n = 310, args = list(mean = 2.322772e-17, sd = 0.2168396)) 
 + stat_function(fun = dnorm, aes(), color = "red", n = 177, args = list(mean = 8.654016e-18, sd = 0.2165281)) 
@@ -692,7 +692,7 @@ ggplot(data=df.antal_rum, aes(x=Antal_Rum)) +
   geom_line(aes(y=gnsprisaalborg), colour ="blue") + geom_point(aes(y=gnsprisaalborg), colour = "blue") +
   geom_line(aes(y=gnsprisaarhus), colour = "red") + geom_point(aes(y=gnsprisaarhus), colour = "red") +
   geom_line(aes(y=gnsprisodense), colour = "darkgreen") + geom_point(aes(y=gnsprisodense), colour = "darkgreen") +
-  geom_line(aes(y=gnspriskobenhavn), colour = "orange") + geom_point(aes(y=gnspriskobenhavn), colour = "orange") +
+  geom_line(aes(y=gnspriskoebenhavn), colour = "orange") + geom_point(aes(y=gnspriskoebenhavn), colour = "orange") +
   xlab("Antal rum") +
   ylab("Huspris, kr") +
   scale_x_continuous(name="Antal rum", breaks = seq(1,17, by=1.0)) +
@@ -703,7 +703,7 @@ ggplot(data=afstand_skoledf, aes(x=x)) +
   geom_line(aes(y=Aalborg, group=1), colour ="blue") + geom_point(aes(y=Aalborg), colour = "blue") +
   geom_line(aes(y=Aarhus, group=1), colour = "red") + geom_point(aes(y=Aarhus), colour = "red") +
   geom_line(aes(y=Odense, group=1), colour = "darkgreen") + geom_point(aes(y=Odense), colour = "darkgreen") +
-  geom_line(aes(y=Kobenhavn, group=1), colour = "orange") + geom_point(aes(y=Kobenhavn), colour = "orange") +
+  geom_line(aes(y=koebenhavn, group=1), colour = "orange") + geom_point(aes(y=koebenhavn), colour = "orange") +
   xlab("Afstand til skole") +
   ylab("Huspris, kr") 
 
